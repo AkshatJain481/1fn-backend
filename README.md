@@ -1,98 +1,443 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# EMI Store Backend API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> A robust NestJS backend API for an e-commerce platform featuring flexible EMI (Equated Monthly Installment) payment plans for smartphones.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Table of Contents
 
-## Description
+- [Overview](#overview)
+- [Tech Stack](#tech-stack)
+- [Database Schema](#database-schema)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [API Endpoints](#api-endpoints)
+- [Usage Examples](#usage-examples)
+- [Features](#features)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🎯 Overview
 
-```bash
-$ npm install
+This backend API powers an EMI-based e-commerce platform that allows customers to purchase smartphones with flexible payment plans. The system manages products, their variants (storage/color combinations), and multiple EMI plans with varying interest rates and tenures.
+
+**Key Capabilities:**
+- Product management with variants
+- Multiple EMI plans per product
+- Zero-interest EMI options
+- Dynamic pricing and stock management
+- RESTful API architecture
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework:** NestJS 10.x
+- **Runtime:** Node.js 18+
+- **Database:** MongoDB (Atlas)
+- **ODM:** Mongoose
+- **Language:** TypeScript
+- **Validation:** class-validator, class-transformer
+
+---
+
+## 📊 Database Schema
+
+### Collections
+
+#### **Products**
+Main product information with references to variants and EMI plans.
+
+```typescript
+{
+  _id: ObjectId,
+  name: String,              // "iPhone 17 Pro"
+  brand: String,             // "Apple"
+  category: String,          // "smartphones"
+  description: String,
+  basePrice: Number,         // Base price
+  mrp: Number,               // Maximum Retail Price
+  images: [String],          // Image URLs
+  variants: [ObjectId],      // References to Variant collection
+  emiPlans: [ObjectId],      // References to EmiPlan collection
+  inStock: Boolean,
+  specifications: Object,    // Technical specs
+  slug: String,              // "iphone-17-pro" (unique)
+  createdAt: Date,
+  updatedAt: Date
+}
 ```
 
-## Compile and run the project
+#### **Variants**
+Product variations (storage/color combinations).
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+```typescript
+{
+  _id: ObjectId,
+  productId: ObjectId,       // Reference to Product
+  storage: String,           // "128GB", "256GB", "512GB"
+  color: String,             // "Silver", "Gold", "Black"
+  price: Number,             // Variant-specific price
+  mrp: Number,
+  inStock: Boolean,
+  stockQuantity: Number,
+  sku: String,               // Stock Keeping Unit (unique)
+  createdAt: Date,
+  updatedAt: Date
+}
 ```
 
-## Run tests
+#### **EMI Plans**
+Flexible payment plans for products.
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+```typescript
+{
+  _id: ObjectId,
+  productId: ObjectId,       // Reference to Product
+  tenure: Number,            // Duration in months (3, 6, 12, 18, 24)
+  monthlyPayment: Number,    // EMI per month
+  interestRate: Number,      // 0-100% (0 for zero-interest)
+  processingFee: Number,
+  downPayment: Number,
+  cashback: Number,
+  description: String,
+  isActive: Boolean,
+  isRecommended: Boolean,    // Highlight best plans
+  createdAt: Date,
+  updatedAt: Date
+}
 ```
 
-## Deployment
+### Schema Relationships
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+Products (1) ──→ (*) Variants
+Products (1) ──→ (*) EMI Plans
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Visual Schema Diagram
 
-## Resources
+```
+┌──────────────────────────────┐
+│         PRODUCTS             │
+├──────────────────────────────┤
+│ _id: ObjectId (PK)          │
+│ name: String                │
+│ brand: String               │
+│ category: String            │
+│ description: String         │
+│ basePrice: Number           │
+│ mrp: Number                 │
+│ images: [String]            │
+│ variants: [ObjectId] ───────┼──┐
+│ emiPlans: [ObjectId] ───────┼──┼──┐
+│ inStock: Boolean            │  │  │
+│ specifications: Object      │  │  │
+│ slug: String (Unique)       │  │  │
+│ createdAt: Date             │  │  │
+│ updatedAt: Date             │  │  │
+└──────────────────────────────┘  │  │
+                                   │  │
+         ┌─────────────────────────┘  │
+         │                            │
+         ▼                            │
+┌──────────────────────────────┐     │
+│         VARIANTS             │     │
+├──────────────────────────────┤     │
+│ _id: ObjectId (PK)          │     │
+│ productId: ObjectId (FK) ───┼─────┘
+│ storage: String             │
+│ color: String               │
+│ price: Number               │
+│ mrp: Number                 │
+│ inStock: Boolean            │
+│ stockQuantity: Number       │
+│ sku: String (Unique)        │
+│ createdAt: Date             │
+│ updatedAt: Date             │
+└──────────────────────────────┘
 
-Check out a few resources that may come in handy when working with NestJS:
+         ┌─────────────────────────────┘
+         │
+         ▼
+┌──────────────────────────────┐
+│        EMI PLANS             │
+├──────────────────────────────┤
+│ _id: ObjectId (PK)          │
+│ productId: ObjectId (FK)    │
+│ tenure: Number              │
+│ monthlyPayment: Number      │
+│ interestRate: Number        │
+│ processingFee: Number       │
+│ downPayment: Number         │
+│ cashback: Number            │
+│ description: String         │
+│ isActive: Boolean           │
+│ isRecommended: Boolean      │
+│ createdAt: Date             │
+│ updatedAt: Date             │
+└──────────────────────────────┘
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+---
 
-## Support
+## 📁 Project Structure
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+src/
+├── config/
+│   └── database.config.ts       # MongoDB connection config
+├── schemas/
+│   ├── product.schema.ts        # Product schema
+│   ├── variant.schema.ts        # Variant schema
+│   └── emi-plan.schema.ts       # EMI Plan schema
+├── dtos/
+│   ├── create-product.dto.ts    # Product validation
+│   ├── create-variant.dto.ts    # Variant validation
+│   └── create-emi-plan.dto.ts   # EMI Plan validation
+├── services/
+│   ├── products.service.ts      # Product business logic
+│   ├── variants.service.ts      # Variant business logic
+│   └── emi-plans.service.ts     # EMI Plan business logic
+├── controllers/
+│   ├── products.controller.ts   # Product endpoints
+│   ├── variants.controller.ts   # Variant endpoints
+│   └── emi-plans.controller.ts  # EMI Plan endpoints
+├── app.module.ts                # Root module
+└── main.ts                      # Application entry point
+```
 
-## Stay in touch
+---
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🚀 Installation
 
-## License
+### Prerequisites
+- Node.js >= 18.x
+- MongoDB Atlas account (or local MongoDB)
+- npm or yarn
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Steps
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd emi-store-backend
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Configure environment variables**
+
+Create a `.env` file in the root directory:
+
+```env
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/emi-store
+PORT=3000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+```
+
+4. **Start the application**
+
+Development mode:
+```bash
+npm run start:dev
+```
+
+Production mode:
+```bash
+npm run build
+npm run start:prod
+```
+
+The API will be available at: `http://localhost:3000/api`
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `MONGODB_URI` | MongoDB connection string | `mongodb+srv://...` |
+| `PORT` | Server port | `3000` |
+| `NODE_ENV` | Environment | `development` |
+| `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:5173` |
+
+---
+
+## 🔌 API Endpoints
+
+### Products
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/products` | Get all products |
+| GET | `/api/products/:id` | Get product by ID |
+| GET | `/api/products/slug/:slug` | Get product by slug |
+| GET | `/api/products/category/:category` | Get products by category |
+| GET | `/api/products/search?q=query` | Search products |
+| POST | `/api/products` | Create new product |
+| PUT | `/api/products/:id` | Update product |
+| DELETE | `/api/products/:id` | Delete product |
+
+### Variants
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/variants` | Get all variants |
+| GET | `/api/variants/:id` | Get variant by ID |
+| GET | `/api/variants/product/:productId` | Get variants by product |
+| GET | `/api/variants/color/:color` | Get variants by color |
+| GET | `/api/variants/storage/:storage` | Get variants by storage |
+| GET | `/api/variants/:id/stock` | Check variant stock |
+| POST | `/api/variants` | Create new variant |
+| PUT | `/api/variants/:id` | Update variant |
+| DELETE | `/api/variants/:id` | Delete variant |
+
+### EMI Plans
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/emi-plans` | Get all active EMI plans |
+| GET | `/api/emi-plans/:id` | Get EMI plan by ID |
+| GET | `/api/emi-plans/product/:productId` | Get plans by product |
+| GET | `/api/emi-plans/product/:productId/recommended` | Get recommended plans |
+| GET | `/api/emi-plans/product/:productId/cheapest` | Get cheapest plan |
+| GET | `/api/emi-plans/tenure/:tenure` | Get plans by tenure |
+| GET | `/api/emi-plans/zero-interest` | Get zero-interest plans |
+| GET | `/api/emi-plans/product/:productId/sorted?order=asc` | Get sorted plans |
+| POST | `/api/emi-plans` | Create new EMI plan |
+| PUT | `/api/emi-plans/:id` | Update EMI plan |
+| DELETE | `/api/emi-plans/:id` | Delete EMI plan |
+
+---
+
+## 📖 Usage Examples
+
+### Get all products with variants and EMI plans
+
+```bash
+GET http://localhost:3000/api/products
+```
+
+**Response:**
+```json
+[
+  {
+    "_id": "507f1f77bcf86cd799439011",
+    "name": "iPhone 17 Pro",
+    "brand": "Apple",
+    "category": "smartphones",
+    "basePrice": 129900,
+    "mrp": 139900,
+    "slug": "iphone-17-pro",
+    "variants": [...],
+    "emiPlans": [...]
+  }
+]
+```
+
+### Get product by slug
+
+```bash
+GET http://localhost:3000/api/products/slug/iphone-17-pro
+```
+
+### Get EMI plans for a product
+
+```bash
+GET http://localhost:3000/api/emi-plans/product/507f1f77bcf86cd799439011
+```
+
+**Response:**
+```json
+[
+  {
+    "_id": "507f191e810c19729de860ea",
+    "productId": "507f1f77bcf86cd799439011",
+    "tenure": 12,
+    "monthlyPayment": 11492,
+    "interestRate": 0,
+    "cashback": 5000,
+    "isRecommended": true
+  }
+]
+```
+
+### Create a new product
+
+```bash
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+  "name": "Samsung Galaxy S24 Ultra",
+  "brand": "Samsung",
+  "category": "smartphones",
+  "description": "Premium flagship smartphone",
+  "basePrice": 124999,
+  "mrp": 134999,
+  "images": ["url1", "url2"],
+  "slug": "samsung-galaxy-s24-ultra"
+}
+```
+
+---
+
+## ✨ Features
+
+### Core Functionality
+- ✅ Full CRUD operations for Products, Variants, and EMI Plans
+- ✅ RESTful API architecture
+- ✅ Data validation with class-validator
+- ✅ MongoDB with Mongoose ODM
+- ✅ TypeScript for type safety
+
+### Product Management
+- ✅ Category-based filtering
+- ✅ Text search functionality
+- ✅ SEO-friendly slugs
+- ✅ Multiple image support
+- ✅ Stock management
+
+### EMI Plans
+- ✅ Multiple tenure options (3, 6, 12, 18, 24 months)
+- ✅ Zero-interest plans
+- ✅ Recommended plan flagging
+- ✅ Cashback support
+- ✅ Processing fee calculation
+
+### Variants
+- ✅ Storage options (128GB, 256GB, 512GB)
+- ✅ Color variants
+- ✅ SKU management
+- ✅ Individual pricing per variant
+- ✅ Stock tracking
+
+---
+
+## 🔒 Data Validation
+
+All API endpoints use DTOs with class-validator decorators:
+
+- Required fields validation
+- Type checking
+- Minimum/Maximum value constraints
+- URL format validation
+- MongoDB ObjectId validation
+
+---
+
+## 📝 License
+
+MIT License - feel free to use this project for learning purposes.
+
+---
+
+## 👨‍💻 Author
+
+Built with ❤️ using NestJS and MongoDB
