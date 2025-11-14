@@ -44,9 +44,3 @@ export class EmiPlan {
 }
 
 export const EmiPlanSchema = SchemaFactory.createForClass(EmiPlan);
-
-// Create indexes for better query performance
-EmiPlanSchema.index({ productId: 1 });
-EmiPlanSchema.index({ tenure: 1 });
-EmiPlanSchema.index({ isActive: 1 });
-EmiPlanSchema.index({ productId: 1, tenure: 1 });

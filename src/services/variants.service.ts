@@ -3,11 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Variant, VariantDocument } from '../schemas/variant.schema';
 import { CreateVariantDto } from '../dtos/create-variant.dto';
+import { Product, ProductDocument } from 'src/schemas/product.schema';
 
 @Injectable()
 export class VariantsService {
   constructor(
     @InjectModel(Variant.name) private variantModel: Model<VariantDocument>,
+    @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
   // Get all variants
@@ -31,10 +33,16 @@ export class VariantsService {
     return this.variantModel.find({ productId }).exec();
   }
 
-  // Create new variant
+  // Create new variant and update product's variants array
   async create(createVariantDto: CreateVariantDto): Promise<Variant> {
     const newVariant = new this.variantModel(createVariantDto);
-    return newVariant.save();
+    const savedVariant = await newVariant.save();
+    await this.productModel.findByIdAndUpdate(
+      createVariantDto.productId,
+      { $push: { variants: savedVariant._id } },
+      { new: true },
+    );
+    return savedVariant;
   }
 
   // Update variant
@@ -53,13 +61,21 @@ export class VariantsService {
     return updatedVariant;
   }
 
-  // Delete variant
   async delete(id: string): Promise<void> {
-    const result = await this.variantModel.findByIdAndDelete(id).exec();
+    // Find the variant first to get productId
+    const variant = await this.variantModel.findById(id).exec();
 
-    if (!result) {
+    if (!variant) {
       throw new NotFoundException(`Variant with ID ${id} not found`);
     }
+
+    // Remove the variant ID from the corresponding product's variants array
+    await this.productModel.findByIdAndUpdate(variant.productId, {
+      $pull: { variants: variant._id },
+    });
+
+    // Delete the variant itself
+    await this.variantModel.findByIdAndDelete(id).exec();
   }
 
   // Get variants by color

@@ -16,7 +16,7 @@ export class Variant {
   productId: Types.ObjectId;
 
   @Prop({ required: true, trim: true })
-  storage: string; // e.g., "128GB", "256GB", "512GB"
+  storage: string;
 
   @Prop({ required: true, trim: true })
   color: string;
@@ -38,8 +38,3 @@ export class Variant {
 }
 
 export const VariantSchema = SchemaFactory.createForClass(Variant);
-
-// Create indexes for better query performance
-VariantSchema.index({ productId: 1 });
-VariantSchema.index({ sku: 1 });
-VariantSchema.index({ storage: 1, color: 1 });
