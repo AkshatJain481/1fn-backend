@@ -2,6 +2,13 @@
 
 > A robust NestJS backend API for an e-commerce platform featuring flexible EMI (Equated Monthly Installment) payment plans for smartphones.
 
+## 🚀 Live API & Testing
+
+**Swagger API Documentation:** [https://onefn-backend.onrender.com/api/docs](https://onefn-backend.onrender.com/api/docs)
+
+Use the Swagger UI to easily view, test, and interact with all API endpoints in real-time. No authentication required for testing.
+
+
 ## 📋 Table of Contents
 
 - [Overview](#overview)
