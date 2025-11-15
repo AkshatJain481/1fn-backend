@@ -42,6 +42,8 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
+  const CSS_URL =
+    'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css';
 
   // Use swagger-ui-express (for Vercel live preview compatibility)
   app.use(
@@ -50,7 +52,9 @@ async function bootstrap() {
     swaggerUi.setup(document, {
       customSiteTitle: 'EMI Store API Documentation',
       customfavIcon: 'https://nestjs.com/img/logo-small.svg',
-      customCss: '.swagger-ui .topbar { display: none }',
+      customCss:
+        '.swagger-ui .opblock .opblock-summary-path-description-wrapper { align-items: center; display: flex; flex-wrap: wrap; gap: 0 10px; padding: 0 10px; width: 100%; }',
+      customCssUrl: CSS_URL,
     }),
   );
 
