@@ -235,7 +235,6 @@ Create a `.env` file in the root directory:
 ```env
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/emi-store
 PORT=3000
-NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
 
@@ -264,7 +263,6 @@ The API will be available at: `http://localhost:3000/api`
 |----------|-------------|---------|
 | `MONGODB_URI` | MongoDB connection string | `mongodb+srv://...` |
 | `PORT` | Server port | `3000` |
-| `NODE_ENV` | Environment | `development` |
 | `FRONTEND_URL` | Frontend URL for CORS | `http://localhost:5173` |
 
 ---
