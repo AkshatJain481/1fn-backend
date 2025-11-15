@@ -13,7 +13,7 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors({
-    origin: process.env.FRONTEND_URL || '*', // fallback for Vercel preview/local
+    origin: true,
     credentials: true,
   });
 
