@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/main.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/swagger-ui.css",
+      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css"
+    },
+    {
+      "src": "/api/swagger-ui-bundle.js",
+      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js"
+    },
+    {
+      "src": "/api/swagger-ui-standalone-preset.js",
+      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js"
+    },
+    {
+      "src": "/api/swagger-ui-init.js",
+      "dest": "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-init.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "src/main.ts",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"]
+    }
+  ]
+}
